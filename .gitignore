@@ -1,0 +1,96 @@
+# Python virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyTorch / RL checkpoints and logs (large binaries)
+checkpoints/
+*.pt
+*.pth
+logs/
+runs/
+
+# TensorBoard
+*.tfevents.*
+
+# Matplotlib outputs
+*.png
+*.pdf
+
+# Visual Studio
+.vs/
+*.sln.docstates
+*.user
+*.userosscache
+*.suo
+*.cachefile
+
+# Visual Studio build outputs
+x64/
+x86/
+Debug/
+Release/
+bin/
+obj/
+*.log
+*.tlog
+*.lastbuildstate
+*.idb
+*.pdb
+*.ilk
+*.exp
+*.lib
+
+# CMake / MSBuild
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary / diagnostic files
+test_marker.txt
+diagnose.py
+diagnose2.py
