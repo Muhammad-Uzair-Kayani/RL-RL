@@ -17,30 +17,27 @@ OBS_NAMES = [
     "opp_vel_x", "opp_vel_y",
     "own_goal_rel_x", "own_goal_rel_y",
     "enemy_goal_rel_x", "enemy_goal_rel_y",
-    "self_has_ball", "team_has_ball",
 ]
 
 def scripted_action(obs):
     ball_rx, ball_ry = obs[4], obs[5]
     team_rx, team_ry = obs[8], obs[9]
     enemy_rx, enemy_ry = obs[18], obs[19]
-    self_has_ball = obs[20] > 0.5
-    team_has_ball = obs[21] > 0.5
+
+    team_has_ball = np.hypot(team_rx - ball_rx, team_ry - ball_ry) < 0.05
+    self_has_ball = np.hypot(ball_rx, ball_ry) < 0.05
 
     action = np.zeros(3, dtype=np.float32)
 
     if team_has_ball:
-        # Support position: between teammate and enemy goal, slightly lateral
         target_x = team_rx + enemy_rx * 0.3
         target_y = team_ry + 0.15
         if target_x < 0.05:
             target_x = 0.05
     elif self_has_ball:
-        # Dribble toward enemy goal
         target_x = enemy_rx
         target_y = enemy_ry
     else:
-        # No one clearly has possession; move toward ball
         target_x = ball_rx
         target_y = ball_ry
 

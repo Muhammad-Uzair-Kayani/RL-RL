@@ -26,9 +26,8 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup>
-    <PythonRoot>$(ProjectDir)..\venv\Scripts</PythonRoot>
-    <PyInclude>$(ProjectDir)..\venv\include</PyInclude>
-    <PyLibs>$(ProjectDir)..\venv\libs</PyLibs>
+    <PyInclude>$([MSBuild]::ExecuteCommandWithResponseFile('venv\Scripts\python.exe -c "import sysconfig; print(sysconfig.get_path(''include''))"'))</PyInclude>
+    <PyLibs>$([MSBuild]::ExecuteCommandWithResponseFile('venv\Scripts\python.exe -c "import os, sys; exe = sys.executable; base = os.path.dirname(os.path.dirname(exe)); print(os.path.join(base, ''libs''))"'))</PyLibs>
     <PyBind11Include Condition="Exists('$(ProjectDir)..\venv\Lib\site-packages\pybind11\include')">$(ProjectDir)..\venv\Lib\site-packages\pybind11\include</PyBind11Include>
     <OutDir>$(ProjectDir)..\python\</OutDir>
     <TargetName>teamsports_rl</TargetName>
@@ -36,24 +35,26 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
+      <LanguageStandard>stdcpp14</LanguageStandard>
       <AdditionalIncludeDirectories>$(PyInclude);$(PyBind11Include);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__STDC_LIMIT_MACROS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(PyLibs);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>python39.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python312.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
+      <LanguageStandard>stdcpp14</LanguageStandard>
       <AdditionalIncludeDirectories>$(PyInclude);$(PyBind11Include);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__STDC_LIMIT_MACROS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(PyLibs);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>python39.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python312.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

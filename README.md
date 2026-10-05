@@ -1,209 +1,108 @@
-# RL-RL
-# RocketAI
+# 2D Team Sports RL Prototype � Stage 1
 
-A small research prototype for training a reinforcement-learning agent to play a Rocket League-like 2D game.
+This workspace contains the first milestone of the C++ ? Python reinforcement-learning prototype for a 2D team sports game.
 
-The project focuses on the **AI architecture and C++ ↔ Python interaction**, rather than building the full game first.
+## What's implemented
 
-## Current Goal
+- `cpp/rl_env.cpp` � minimal headless C++14 simulation with:
+  - 1 AI field player (Team A)
+  - 1 scripted teammate (Team A)
+  - 1 scripted opponent (Team B)
+  - Ball, goals, field boundaries, possession flags, basic scoring
+- `python/teamsports_rl.pyd` � pybind11 compiled extension (generated)
+- `python/teamsports_env.py` � Gymnasium wrapper
+- `python/test_random_agent.py` � random action loop
+- `python/scripted_baseline.py` � rule-based baseline
+- `python/evaluate.py` � random vs scripted comparison
+- `python/train_ppo.py` � PyTorch PPO implementation with GAE
 
-Build a minimal, headless C++ simulation that provides a game-relevant environment for an RL agent.
+## Project layout
 
-The initial pipeline is:
-
-```text
-C++ Simulation
-      ↓
- Observation
-      ↓
- Python / PyTorch
-      ↓
-    Action
-      ↓
- C++ Simulation
-      ↓
-    Reward
-      ↓
- Python / PPO
+```
+PythonApplication1/
+??? cpp/
+?   ??? rl_env.cpp
+?   ??? TeamSportsEnv.sln
+?   ??? TeamSportsEnv.vcxproj
+??? python/
+?   ??? teamsports_env.py
+?   ??? test_random_agent.py
+?   ??? scripted_baseline.py
+?   ??? evaluate.py
+?   ??? train_ppo.py
+??? venv/
+??? requirements.txt
+??? setup.py
+??? build_cpp.bat
+??? build_env.py
+??? run_random_agent.py
+??? README.md
 ```
 
-Once this works, the same AI interface can eventually be connected to the actual 2D game.
+## Quick start
 
-## Prototype Scope
-
-The first simulation is intentionally small:
-
-* 2 teams
-* 1 AI field player
-* 1 teammate
-* 1 opposing player
-* 1 ball
-* 2 goals
-* Basic movement
-* Basic ball movement
-* Basic kicking/ball interaction
-* Ball possession
-* Scoring
-* Episode reset and termination
-
-The goalkeeper, human-player switching, rendering, advanced physics, and complex tactics will be added later.
-
-## AI Objective
-
-The long-term objective is to train field-player agents that can **support their team and react to the game state**, rather than simply chase the ball.
-
-Potential learned behaviors include:
-
-* Positioning
-* Supporting the ball carrier
-* Attacking
-* Defending
-* Ball interaction
-* Passing
-* Creating opportunities
-* Reacting to opponents
-
-## Observation
-
-The agent receives structured numerical state rather than raw pixels.
-
-A possible observation contains:
-
-```text
-Self position
-Self velocity
-
-Ball relative position
-Ball velocity
-
-Teammate relative position
-Opponent relative position
-
-Own goal relative position
-Enemy goal relative position
-
-Ball possession
-Teammate possession
+```cmd
+python build_env.py --install
+build_cpp.bat
+python run_random_agent.py
 ```
 
-The observation representation will be kept compact and easy to replace when the real game is implemented.
+## Low-level pybind11 API
 
-## Action Space
+```python
+import teamsports_rl
+import numpy as np
 
-The initial action space is:
+env = teamsports_rl.TeamSportsEnv()
+obs, info = env.reset()
 
-```text
-move_x ∈ [-1, 1]
-move_y ∈ [-1, 1]
-kick ∈ {0, 1}
+action = np.array([0.5, 0.0, 0.0], dtype=np.float32)
+obs, reward, terminated, truncated, info = env.step(action)
 ```
 
-The exact action representation may evolve with the game.
+## Gymnasium wrapper API
 
-## Reinforcement Learning
+```python
+from teamsports_env import TeamSportsEnv
 
-The planned RL algorithm is **Proximal Policy Optimization (PPO)** implemented with PyTorch.
+env = TeamSportsEnv()
+obs, info = env.reset()
 
-The first development stages use random and scripted agents to verify the environment before training begins.
-
-```text
-Environment
-    ↓
-Random Agent
-    ↓
-Scripted Baseline
-    ↓
-PPO
-    ↓
-Evaluation
+obs, reward, terminated, truncated, info = env.step(
+    np.array([0.5, 0.0, 0.0], dtype=np.float32)
+)
 ```
 
-## Technology
+## Observation schema
 
-### C++
+`OBS_DIM = 22`
 
-* C++17/20
-* Visual Studio 2022
-* pybind11
+| Indices | Content |
+|---|---|
+| 0-1 | self position (normalized) |
+| 2-3 | self velocity |
+| 4-5 | ball relative position |
+| 6-7 | ball velocity |
+| 8-9 | teammate relative position |
+| 10-11 | teammate velocity |
+| 12-13 | opponent relative position |
+| 14-15 | opponent velocity |
+| 16-17 | own goal relative position |
+| 18-19 | enemy goal relative position |
+| 20 | self has ball (0/1) |
+| 21 | teammate has ball (0/1) |
 
-### Python
+## Action schema
 
-* Python 3.12
-* PyTorch
-* NumPy
-* Gymnasium
-* Matplotlib
-* TensorBoard
+`[move_x, move_y, kick]`
 
-Python dependencies are isolated using a project-local virtual environment.
+- `move_x ? [-1, 1]`
+- `move_y ? [-1, 1]`
+- `kick ? {0, 1}`
 
-## Project Philosophy
+## Next steps
 
-The simulation is a **temporary stand-in for the future game**, not the final game itself.
-
-The project intentionally follows an incremental approach:
-
-```text
-Minimal Simulation
-        ↓
-C++ ↔ Python Interface
-        ↓
-Observation / Action API
-        ↓
-Reward System
-        ↓
-Baseline Agents
-        ↓
-PPO
-        ↓
-Expanded Simulation
-        ↓
-Actual 2D Game
-        ↓
-AI Integration
-```
-
-The goal is to avoid building a complete game before knowing whether the AI architecture works.
-
-## Status
-
-🚧 **Early development**
-
-Current priority:
-
-* [ ] Minimal C++ simulation
-* [ ] pybind11 interface
-* [ ] `reset()`
-* [ ] `get_observation()`
-* [ ] `step(action)`
-* [ ] Reward system
-* [ ] Episode termination
-* [ ] Python random agent
-* [ ] Scripted baseline
-* [ ] PPO implementation
-* [ ] Training/evaluation tools
-* [ ] Expand simulation toward Prototype 1
-* [ ] Build actual 2D game
-* [ ] Connect trained agent to the game
-
-## Future Prototype 1
-
-The eventual game prototype will contain:
-
-```text
-Team A                         Team B
-
-Goalkeeper                     Goalkeeper
-AI Field Player                AI Field Player
-Human Field Player             Human Field Player
-```
-
-Total: **6 active players**
-
-The human player will be able to switch between their field players. The uncontrolled field player will be controlled by the AI.
-
-The goalkeeper will initially use rule-based logic.
-
-## License
-
-License to be determined.
+- Run random and scripted baselines.
+- Tune reward function.
+- Train PPO with small rollouts first.
+- Add goalkeeper and second human field player.

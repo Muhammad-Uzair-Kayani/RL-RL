@@ -29,19 +29,21 @@ def get_pybind11_include():
     return result.stdout.strip()
 
 def get_base_python_paths():
-    """Return (include_dir, libs_dir) for the base Python that owns the venv."""
+    """Return (include_dir, libs_dir, executable) for the base Python that owns the venv."""
     py = get_venv_python()
     script = (
         "import sysconfig, sys, os; "
-        "base = sys.base_prefix; "
+        "exe = sys.executable; "
+        "base = os.path.dirname(os.path.dirname(exe)); "
         "print(sysconfig.get_path('include')); "
-        "print(os.path.join(base, 'libs'))"
+        "print(os.path.join(base, 'libs')); "
+        "print(exe)"
     )
     result = subprocess.run([py, "-c", script], capture_output=True, text=True)
     lines = result.stdout.strip().splitlines()
-    if len(lines) < 2:
+    if len(lines) < 3:
         raise RuntimeError(f"Could not determine Python paths. Output: {result.stdout!r} stderr: {result.stderr!r}")
-    return lines[0], lines[1]
+    return lines[0], lines[1], lines[2]
 
 def find_python_lib(libs_dir):
     candidates = glob.glob(os.path.join(libs_dir, "python*.lib"))
@@ -51,7 +53,7 @@ def find_python_lib(libs_dir):
 
 def build_module():
     pybind_include = get_pybind11_include()
-    py_include, py_libs_dir = get_base_python_paths()
+    py_include, py_libs_dir, _exe = get_base_python_paths()
 
     python_lib = find_python_lib(py_libs_dir)
     if not python_lib:

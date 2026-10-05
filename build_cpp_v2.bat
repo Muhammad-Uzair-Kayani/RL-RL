@@ -19,13 +19,11 @@ set "PYBIND_INC=%ROOT%venv\Lib\site-packages\pybind11\include"
 
 for /f "tokens=*" %%a in ('%PY% -c "import sysconfig; print(sysconfig.get_path('include'))"') do set "PY_INC=%%a"
 
-for /f "tokens=*" %%a in ('%PY% -c "import os, sys; print(os.path.join(sys.base_prefix, 'libs'))"') do set "PY_LIBDIR=%%a"
-
-for /f "tokens=*" %%a in ('%PY% -c "import sys; print('python%d%d.lib' % sys.version_info[:2])"') do set "PY_LIB=%%a"
+for /f "tokens=*" %%a in ('%PY% -c "import os, sys; exe = sys.executable; base = os.path.dirname(os.path.dirname(exe)); print(os.path.join(base, 'libs'))"') do set "PY_LIBDIR=%%a"
 
 mkdir "%ROOT%python" 2>nul
 
-cl.exe /std:c++14 /O2 /MD /EHsc /I "%PY_INC%" /I "%PYBIND_INC%" /LD cpp\rl_env.cpp /link /LIBPATH:"%PY_LIBDIR%" "%PY_LIB%" /OUT:python\teamsports_rl.pyd
+cl.exe /std:c++14 /O2 /MD /EHsc /I "%PY_INC%" /I "%PYBIND_INC%" /LD cpp\rl_env.cpp /link /LIBPATH:"%PY_LIBDIR%" /OUT:python\teamsports_rl.pyd
 
 echo.
 if exist "%ROOT%python\teamsports_rl.pyd" (
